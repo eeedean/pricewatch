@@ -5,6 +5,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Slf4j
 @Service
 public class SubscriberService {
@@ -30,6 +32,7 @@ public class SubscriberService {
         }
     }
 
+    @Transactional
     public Subscriber register(Subscriber request, String password) {
         Subscriber result = null;
         var encodedpw = passwordEncoder.encode(password);
@@ -47,14 +50,14 @@ public class SubscriberService {
             result.setPasswordHash(encodedpw);
         }
 
-        subscriberRepository.save(result);
-        return result;
+        return subscriberRepository.save(result);
     }
 
     private void doChanges(Subscriber request, Subscriber result) {
         result.setEmail(request.getEmail());
     }
 
+    @Transactional
     public void unregister(Subscriber subscriber) {
         subscriberRepository.deleteById(subscriber.getId());
     }

@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.util.NestedServletException;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,19 +52,23 @@ public class ProductHttpControllerTest {
 
     @BeforeAll
     public void setUp() {
-        subscriber = subscriberService.register(subscriber, TEST_PASSWORD);
+        log.info("registering test subscriber");
+        subscriber = subscriberService.register(Subscriber.builder().name("boy").build(), TEST_PASSWORD);
     }
 
     @AfterAll
     public void tearDown() {
+        log.info("unregistering test subscriber");
         subscriberService.unregister(subscriber);
     }
 
     @AfterEach
     public void tearDownEach() {
+        log.info("removing all TrackedProducts");
         repo.deleteAll();
     }
 
+    @Transactional
     @Test
     public void testValidAmazon() throws Exception {
         ResultActions actions = mvc.perform(post("/subscribe")
@@ -84,6 +89,7 @@ public class ProductHttpControllerTest {
                 .andExpect(content().string("{\"id\":\"" + id + "\",\"name\":null,\"price\":null,\"oldPrice\":null,\"url\":\"https://amazon.de/dp/B01CFWCN14\",\"tracked\":true,\"shop\":\"AMAZON\",\"updatedAt\":null}"));
     }
 
+    @Transactional
     @Test
     public void testMissingSaver() throws Exception {
         List<UrlTransformer> oldTransformers = trackedProductService.getTransformers();

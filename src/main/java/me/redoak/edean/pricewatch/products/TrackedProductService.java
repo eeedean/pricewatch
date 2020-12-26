@@ -5,6 +5,7 @@ import me.redoak.edean.pricewatch.logic.Shop;
 import me.redoak.edean.pricewatch.logic.UrlTransformer;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
 import lombok.extern.slf4j.Slf4j;
+import me.redoak.edean.pricewatch.subscribers.SubscriberRepository;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -26,17 +27,19 @@ public class TrackedProductService {
     private EnumMap<Shop, ProductSaver> savers;
 
     private final TrackedProductRepository trackedProductRepository;
+    private final SubscriberRepository subscriberRepository;
 
     private final Scheduler scheduler;
 
     public TrackedProductService(List<UrlTransformer> transformers,
                                  Set<ProductSaver> savers,
                                  TrackedProductRepository trackedProductRepository,
-                                 Scheduler scheduler) {
+                                 SubscriberRepository subscriberRepository, Scheduler scheduler) {
         this.transformers = transformers;
         this.savers = new EnumMap<>(savers.stream()
                 .collect(Collectors.toMap(ProductSaver::savesFor, Function.identity())));
         this.trackedProductRepository = trackedProductRepository;
+        this.subscriberRepository = subscriberRepository;
         this.scheduler = scheduler;
     }
 
@@ -55,20 +58,39 @@ public class TrackedProductService {
 
     @Transactional
     public TrackedProduct subscribe(ProductRequest request, Subscriber subscriber) {
-        UrlTransformer transformer = transformers.stream()
-                .filter(t -> t.appliesFor(request.getUrl()))
-                .findFirst().orElseThrow(() -> new RuntimeException("Did not find any transformer for given product."));
-        URL url = transformer
-                .apply(request.getUrl());
-        ProductSaver saver = savers.get(transformer.transformsFor());
-        if(saver == null) {
-            throw new RuntimeException("No saver found for shop: " + transformer.transformsFor());
-        }
+        UrlTransformer transformer = findUrlTransformer(request);
+        URL url = transformer.apply(request.getUrl());
+        ProductSaver saver = findProductSaver(transformer);
         TrackedProduct product = saver.save(url);
         product.addSubscriber(subscriber);
 
-
         return trackedProductRepository.save(product);
+    }
+
+    @Transactional
+    public void unsubscribe(ProductRequest request, Subscriber subscriber) {
+        UrlTransformer transformer = findUrlTransformer(request);
+        URL url = transformer.apply(request.getUrl());
+        trackedProductRepository.findByUrl(url).ifPresent((trackedProduct) -> {
+            trackedProduct.removeSubscriber(subscriber);
+            trackedProductRepository.save(trackedProduct);
+            subscriberRepository.save(subscriber);
+            log.debug("unsubscribed {} from {}", subscriber.getName(), trackedProduct.getUrl());
+        });
+    }
+
+    private ProductSaver findProductSaver(UrlTransformer transformer) {
+        ProductSaver saver = savers.get(transformer.transformsFor());
+        if (saver == null) {
+            throw new RuntimeException("No saver found for shop: " + transformer.transformsFor());
+        }
+        return saver;
+    }
+
+    private UrlTransformer findUrlTransformer(ProductRequest request) {
+        return transformers.stream()
+                .filter(t -> t.appliesFor(request.getUrl()))
+                .findFirst().orElseThrow(() -> new RuntimeException("Did not find any transformer for given product."));
     }
 
     void setTransformers(List<UrlTransformer> transformers) {

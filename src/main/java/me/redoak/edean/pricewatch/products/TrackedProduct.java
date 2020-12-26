@@ -1,6 +1,7 @@
 package me.redoak.edean.pricewatch.products;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.extern.slf4j.Slf4j;
 import me.redoak.edean.pricewatch.logic.Shop;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
 import lombok.AllArgsConstructor;
@@ -30,12 +31,12 @@ import java.util.Set;
 /**
  * Represents a product to be tracked on some web shop site.
  */
+@Slf4j
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @ToString(exclude = "subscribers")
-@EqualsAndHashCode(exclude = "subscribers")
 @Table(name = "tracked_product")
 @Entity
 public class TrackedProduct {
@@ -77,7 +78,33 @@ public class TrackedProduct {
         if(subscribers == null)
             subscribers = new HashSet<>();
         subscribers.add(subscriber);
-        if(subscriber.getTrackedProducts().contains(this))
+        if(subscriber.getTrackedProducts() == null || !subscriber.getTrackedProducts().contains(this))
             subscriber.addProduct(this);
+    }
+
+    public void removeSubscriber(Subscriber subscriber) {
+        if(subscribers != null && subscribers.contains(subscriber)) {
+            log.debug("removing {} from {}", subscriber.getName(), this.getUrl());
+            subscribers.remove(subscriber);
+            subscriber.removeTrackedProduct(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof TrackedProduct))
+            return false;
+
+        TrackedProduct other = (TrackedProduct) o;
+
+        return id != null &&
+                id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

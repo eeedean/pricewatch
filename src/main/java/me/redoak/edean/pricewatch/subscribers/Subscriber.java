@@ -1,6 +1,7 @@
 package me.redoak.edean.pricewatch.subscribers;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.extern.slf4j.Slf4j;
 import me.redoak.edean.pricewatch.products.TrackedProduct;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -66,7 +68,33 @@ public class Subscriber {
         if(this.trackedProducts == null)
             this.trackedProducts = new HashSet<>();
         this.trackedProducts.add(trackedProduct);
-        if(!trackedProduct.getSubscribers().contains(this))
+        if(trackedProduct.getSubscribers() == null || !trackedProduct.getSubscribers().contains(this))
             trackedProduct.addSubscriber(this);
+    }
+
+    public void removeTrackedProduct(TrackedProduct trackedProduct) {
+        if(trackedProducts != null && trackedProducts.contains(trackedProduct)) {
+            log.debug("removing {} from {}", trackedProduct.getUrl(), this.getName());
+            trackedProducts.remove(trackedProduct);
+            trackedProduct.removeSubscriber(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Subscriber))
+            return false;
+
+        Subscriber other = (Subscriber) o;
+
+        return id != null &&
+                id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
