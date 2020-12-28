@@ -6,10 +6,11 @@ import me.redoak.edean.pricewatch.products.TrackedProduct;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,14 +20,20 @@ import java.util.List;
 @DisallowConcurrentExecution
 public class ProductUpdateJob extends QuartzJobBean {
 
-    @Autowired
-    private TrackedProductRepository repo;
+    @Value("${me.redoak.edean.pricewatch.min-change-percent}")
+    private double minPriceChangePercentage;
 
-    @Autowired
-    private List<ProductUpdater> updaters;
+    private final TrackedProductRepository repo;
 
-    @Autowired
-    private List<Notifier> notifiers;
+    private final List<ProductUpdater> updaters;
+
+    private final List<Notifier> notifiers;
+
+    public ProductUpdateJob(TrackedProductRepository repo, List<ProductUpdater> updaters, List<Notifier> notifiers) {
+        this.repo = repo;
+        this.updaters = updaters;
+        this.notifiers = notifiers;
+    }
 
     @Transactional
     @Override
@@ -37,6 +44,14 @@ public class ProductUpdateJob extends QuartzJobBean {
                     log.debug("Updating products for {} with {}.", updater.getShop(), updater.toString());
                     repo.findAllByShopEagerSubscribers(updater.getShop()).parallelStream()
                             .filter(updater::update) // ProductUpdater.update delivers true, if there was a price difference
+                            .filter(product -> product.getPrice() == null ||
+                                    (product.getOldPrice() != null && product.getPrice() != null &&
+                                    product.getPrice()
+                                            .divide(product.getOldPrice())
+                                            .subtract(BigDecimal.ONE)
+                                            .multiply(BigDecimal.valueOf(100))
+                                            .abs()
+                                            .compareTo(BigDecimal.valueOf(minPriceChangePercentage)) > 0 ))
                             .forEach(product ->
                                     product.getSubscribers().forEach(subscriber ->
                                             notifiers.forEach(n -> n.inform(product, subscriber))));
