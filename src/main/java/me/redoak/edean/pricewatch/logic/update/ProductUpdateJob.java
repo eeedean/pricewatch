@@ -11,6 +11,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class ProductUpdateJob extends QuartzJobBean {
                             .filter(product -> product.getPrice() == null ||
                                     (product.getOldPrice() != null && product.getPrice() != null &&
                                     product.getPrice()
-                                            .divide(product.getOldPrice())
+                                            .divide(product.getOldPrice(), 2, RoundingMode.HALF_UP)
                                             .subtract(BigDecimal.ONE)
                                             .multiply(BigDecimal.valueOf(100))
                                             .abs()
