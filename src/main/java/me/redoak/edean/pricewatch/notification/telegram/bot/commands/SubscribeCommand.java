@@ -10,13 +10,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import java.util.Optional;
 
 @Component
-public class SubscribeCommand implements PricewatchTelegramBotCommand {
+public class SubscribeCommand extends AuthenticatedCommand {
 
-    private final SubscriberRepository subscriberRepository;
     private final TrackedProductService trackedProductService;
 
     public SubscribeCommand(SubscriberRepository subscriberRepository, TrackedProductService trackedProductService) {
-        this.subscriberRepository = subscriberRepository;
+        super(subscriberRepository);
         this.trackedProductService = trackedProductService;
     }
 
@@ -26,15 +25,10 @@ public class SubscribeCommand implements PricewatchTelegramBotCommand {
     }
 
     @Override
-    public String execute(Message message) {
+    protected String executeInternal(Message message, Subscriber subscriber) {
         var s = message.getText().split(" ");
         if (s.length != 2)
             return "Falsche Menge an Argumenten! `/subscribe »url«`";
-        Optional<Subscriber> subscriberOpt = subscriberRepository.findByTelegramChatId(String.valueOf(message.getChatId()));
-        if (!subscriberOpt.isPresent()) {
-            return "Authentifiziere Dich zuerst mit `/auth`. Wenn Du noch nicht registriert bist, verwende `/register`.";
-        }
-        Subscriber subscriber = subscriberOpt.get();
         ProductRequest productRequest = new ProductRequest();
         productRequest.setUrl(s[1]);
         trackedProductService.subscribe(productRequest, subscriber);
