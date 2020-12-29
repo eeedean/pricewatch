@@ -1,14 +1,14 @@
-package me.redoak.edean.pricewatch.shops.amazon;
+package me.redoak.edean.pricewatch.shops.home24;
 
-import me.redoak.edean.pricewatch.shops.Shop;
-import me.redoak.edean.pricewatch.products.TrackedProduct;
-import me.redoak.edean.pricewatch.products.TrackedProductRepository;
-import me.redoak.edean.pricewatch.logic.update.ProductUpdater;
-import me.redoak.edean.pricewatch.logic.WebClient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import me.redoak.edean.pricewatch.logic.WebClient;
+import me.redoak.edean.pricewatch.logic.update.ProductUpdater;
+import me.redoak.edean.pricewatch.products.TrackedProduct;
+import me.redoak.edean.pricewatch.products.TrackedProductRepository;
+import me.redoak.edean.pricewatch.shops.Shop;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,13 +27,13 @@ import java.util.regex.Pattern;
 import static java.util.Objects.isNull;
 
 /**
- * {@link ProductUpdater} for updating {@link TrackedProduct}s from {@link Shop#AMAZON}.
+ * {@link ProductUpdater} for updating {@link TrackedProduct}s from {@link Shop#HOME24}.
  */
 @Slf4j
 @Getter(AccessLevel.PACKAGE)
 @Setter(AccessLevel.PACKAGE)
 @Component
-public class AmazonProductUpdater implements ProductUpdater {
+public class Home24ProductUpdater implements ProductUpdater {
 
     @Autowired
     private WebClient webClient;
@@ -43,7 +43,7 @@ public class AmazonProductUpdater implements ProductUpdater {
 
     @Override
     public Shop getShop() {
-        return Shop.AMAZON;
+        return Shop.HOME24;
     }
 
     @Override
@@ -68,9 +68,10 @@ public class AmazonProductUpdater implements ProductUpdater {
     }
 
     private boolean updateTitle(Document doc, TrackedProduct trackedProduct) {
-        Element element = doc.getElementById("productTitle");
-        if (element != null) {
-            String newName = element.text().trim();
+        Element titleElement = doc.getElementsByAttributeValue("data-testid", "article-name").first();
+        Element variantElement = doc.getElementsByAttributeValue("data-testid", "article-variant-name").first();
+        if (titleElement != null) {
+            String newName = titleElement.text().trim() + " (" + variantElement.text().trim() + ")";
             String oldName = trackedProduct.getName();
             if (!newName.equals(oldName)) {
                 trackedProduct.setName(newName);
@@ -80,7 +81,7 @@ public class AmazonProductUpdater implements ProductUpdater {
                 log.debug("title did not change");
             }
         } else {
-            log.warn("did not find title element! Product ID: {}", trackedProduct.getId());
+            log.warn("did not find title titleElement! Product ID: {}", trackedProduct.getId());
         }
         return false;
     }
@@ -106,7 +107,7 @@ public class AmazonProductUpdater implements ProductUpdater {
     }
 
     private BigDecimal getPrice(Document doc) {
-        Element element = doc.getElementById("priceblock_ourprice");
+        Element element = doc.getElementsByAttributeValue("data-testid", "current-price").first();
         if (element != null) {
             Matcher matcher = Pattern.compile("([0-9,.]+)").matcher(element.text());
             matcher.find();
@@ -119,7 +120,7 @@ public class AmazonProductUpdater implements ProductUpdater {
                 throw new RuntimeException("Number of unsupported format: " + priceString, e);
             }
         } else {
-            log.debug("did not find price element!");
+            log.warn("did not find price element!");
             return null;
         }
     }
