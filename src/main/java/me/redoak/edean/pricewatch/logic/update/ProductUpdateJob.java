@@ -1,6 +1,6 @@
 package me.redoak.edean.pricewatch.logic.update;
 
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import me.redoak.edean.pricewatch.products.TrackedProductRepository;
 import me.redoak.edean.pricewatch.products.TrackedProduct;
 import lombok.extern.slf4j.Slf4j;

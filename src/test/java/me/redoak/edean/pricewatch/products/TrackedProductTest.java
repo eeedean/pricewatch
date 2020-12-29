@@ -1,6 +1,6 @@
 package me.redoak.edean.pricewatch.products;
 
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

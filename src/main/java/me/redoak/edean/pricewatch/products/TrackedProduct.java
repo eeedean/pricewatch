@@ -2,12 +2,11 @@ package me.redoak.edean.pricewatch.products;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.extern.slf4j.Slf4j;
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;

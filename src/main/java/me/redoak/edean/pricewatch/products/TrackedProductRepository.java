@@ -1,6 +1,6 @@
 package me.redoak.edean.pricewatch.products;
 
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,4 +1,4 @@
-package me.redoak.edean.pricewatch.amazon;
+package me.redoak.edean.pricewatch.shops.amazon;
 
 import me.redoak.edean.pricewatch.logic.TransformationException;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +16,7 @@ public class AmazonUrlTransformerTest {
     private AmazonUrlTransformer transformer = new AmazonUrlTransformer();
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/me/redoak/edean/pricewatch/amazon/amazon_url_parameters.csv")
+    @CsvFileSource(resources = "/me/redoak/edean/pricewatch/shops/amazon/amazon_url_parameters.csv")
     public void testApply(String urlStr, boolean shouldSucceed) {
         if(shouldSucceed) {
             URL url = transformer.apply(urlStr);
@@ -33,7 +33,7 @@ public class AmazonUrlTransformerTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/me/redoak/edean/pricewatch/amazon/amazon_url_parameters.csv")
+    @CsvFileSource(resources = "/me/redoak/edean/pricewatch/shops/amazon/amazon_url_parameters.csv")
     public void testAppliesFor(String url, boolean expected) {
         assertThat(transformer.appliesFor(url), equalTo(expected));
     }

@@ -1,7 +1,7 @@
 package me.redoak.edean.pricewatch.http;
 
 import me.redoak.edean.pricewatch.logic.ProductSaver;
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import me.redoak.edean.pricewatch.products.ProductRequest;
 import me.redoak.edean.pricewatch.products.TrackedProduct;
 import me.redoak.edean.pricewatch.products.TrackedProductService;

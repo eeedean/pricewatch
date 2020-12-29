@@ -30,7 +30,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @ToString(exclude = "trackedProducts")
-@EqualsAndHashCode(exclude = "trackedProducts")
 @Table(name = "subscriber")
 @Entity
 public class Subscriber {

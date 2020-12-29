@@ -1,7 +1,7 @@
 package me.redoak.edean.pricewatch.products;
 
 import me.redoak.edean.pricewatch.logic.ProductSaver;
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import me.redoak.edean.pricewatch.logic.UrlTransformer;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
 import lombok.extern.slf4j.Slf4j;

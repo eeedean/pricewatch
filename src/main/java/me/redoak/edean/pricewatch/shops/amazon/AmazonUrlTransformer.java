@@ -1,6 +1,6 @@
-package me.redoak.edean.pricewatch.amazon;
+package me.redoak.edean.pricewatch.shops.amazon;
 
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import me.redoak.edean.pricewatch.logic.TransformationException;
 import me.redoak.edean.pricewatch.logic.UrlTransformer;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package me.redoak.edean.pricewatch.amazon;
+package me.redoak.edean.pricewatch.shops.amazon;
 
 import me.redoak.edean.pricewatch.products.TrackedProduct;
 import me.redoak.edean.pricewatch.products.TrackedProductRepository;

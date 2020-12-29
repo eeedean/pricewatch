@@ -1,6 +1,6 @@
 package me.redoak.edean.pricewatch.util;
 
-import me.redoak.edean.pricewatch.logic.Shop;
+import me.redoak.edean.pricewatch.shops.Shop;
 import me.redoak.edean.pricewatch.logic.UrlTransformer;
 
 import java.net.URL;

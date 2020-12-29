@@ -1,6 +1,7 @@
 package me.redoak.edean.pricewatch.logic;
 
 import me.redoak.edean.pricewatch.products.TrackedProduct;
+import me.redoak.edean.pricewatch.shops.Shop;
 
 import java.net.URL;
 
