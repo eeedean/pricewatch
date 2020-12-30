@@ -1,7 +1,8 @@
 package me.redoak.edean.pricewatch.notification.telegram.bot;
 
-import me.redoak.edean.pricewatch.notification.telegram.bot.commands.PricewatchTelegramBotCommand;
 import lombok.extern.slf4j.Slf4j;
+import me.redoak.edean.pricewatch.notification.telegram.bot.commands.HelpCommand;
+import me.redoak.edean.pricewatch.notification.telegram.bot.commands.PricewatchTelegramBotCommand;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,12 @@ public class PricewatchTelegramBot extends TelegramLongPollingBot {
 
     public PricewatchTelegramBot(List<PricewatchTelegramBotCommand> commands) {
         this.commands = commands;
+        this.commands.add(new HelpCommand(this.commands));
+        log.info("Initialized PricewatchTelegramBot with {} commands", this.commands.size());
+        log.info("Command-Description for Telegram BotFather: \n{}", this.commands.stream()
+                .map(PricewatchTelegramBotCommand::getDescription)
+                .map(s -> s.substring(1))
+                .reduce("", (s1, s2) -> s1+"\n"+s2));
     }
 
     @Value("${me.redoak.edean.pricewatch.telegram.bot.username}")

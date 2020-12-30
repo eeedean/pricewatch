@@ -5,31 +5,50 @@ import me.redoak.edean.pricewatch.subscribers.SubscriberService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.List;
+
 @Component
-public class UnregisterCommand  implements  PricewatchTelegramBotCommand{
+public class UnregisterCommand extends AbstractCommand {
+
+    private static final int USER_INDEX = 1;
+    private static final int PASSWORD_INDEX = 2;
 
     private final SubscriberService subscriberService;
 
     public UnregisterCommand(SubscriberService subscriberService) {
+        super();
         this.subscriberService = subscriberService;
     }
 
     @Override
-    public boolean appliesTo(Message message) {
-        return message.getText().split(" ")[0].toLowerCase().startsWith("/unregister");
+    protected String execute(Message message, List<Argument> argumentList) {
+        try {
+            String username = argumentList.get(USER_INDEX).getValue();
+            String password = argumentList.get(PASSWORD_INDEX).getValue();
+
+            Subscriber subscriberRequest = subscriberService.auth(username, password);
+            subscriberService.unregister(subscriberRequest);
+        } catch (SecurityException e) {
+            return "Die Login-Daten stimmen nicht!";
+        }
+        return "OK byyyeee!";
     }
 
     @Override
-    public String execute(Message message) {
-        var s = message.getText().split(" ");
-        if (s.length != 3)
-            return "Falsche Menge an Argumenten! `/unregister »user« »password«`";
-        try {
-            Subscriber subscriberRequest = subscriberService.auth(s[1], s[2]);
-            subscriberService.unregister(subscriberRequest);
-        } catch (SecurityException e) {
-            return "Da stimmte was an den Daten nicht!";
-        }
-        return "OK byyyeee!";
+    protected void initializeArguments(List<Argument> argumentList) {
+        argumentList.add(Argument.builder()
+                .name("Konto löschen")
+                .description("Das würde mich traurig machen, aber möchtest Du keine mehr Benachrichtigungen erhalten, " +
+                        "kannst Du mit diesem Befehl Dein Nutzerkonto löschen. Deine Daten werden damit restlos gelöscht.")
+                .value("/unregister")
+                .build());
+        argumentList.add(Argument.builder()
+                .name("Nutzname")
+                .description("Dein Nutzername")
+                .build());
+        argumentList.add(Argument.builder()
+                .name("Passwort")
+                .description("Dein Passwort")
+                .build());
     }
 }

@@ -5,31 +5,51 @@ import me.redoak.edean.pricewatch.subscribers.SubscriberService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.List;
+
 @Component
-public class RegisterCommand implements PricewatchTelegramBotCommand {
+public class RegisterCommand extends AbstractCommand {
+
+    private static final int USER_INDEX = 1;
+    private static final int PASSWORD_INDEX = 2;
 
     private final SubscriberService subscriberService;
 
     public RegisterCommand(SubscriberService subscriberService) {
+        super();
         this.subscriberService = subscriberService;
     }
 
     @Override
-    public boolean appliesTo(Message message) {
-        return message.getText().split(" ")[0].toLowerCase().startsWith("/register");
-    }
-
-    @Override
-    public String execute(Message message) {
-        var s = message.getText().split(" ");
-        if (s.length != 3)
-            return "Falsche Menge an Argumenten! `/register »user« »password«`";
-        Subscriber subscriberRequest = Subscriber.builder().name(s[1]).build();
+    protected String execute(Message message, List<Argument> argumentList) {
         try {
-            subscriberService.register(subscriberRequest, s[2]);
+            String username = argumentList.get(USER_INDEX).getValue();
+            String password = argumentList.get(PASSWORD_INDEX).getValue();
+
+            Subscriber subscriberRequest = Subscriber.builder().name(username).build();
+            subscriberService.register(subscriberRequest, password);
         } catch (SecurityException e) {
             return "Name schon belegt!";
         }
         return "Super, Du kannst Dich jetzt mit `/auth` authentifizieren!";
+    }
+
+    @Override
+    protected void initializeArguments(List<Argument> argumentList) {
+        argumentList.add(Argument.builder()
+                .name("Konto erstellen")
+                .description("Registriere Dich, damit ein Benutzerkonto für Dich erstellt wird. " +
+                        "Das musst Du tun, damit Du mich verwenden kannst. Ohne Authentifizierung kann " +
+                        "ich Deine Abonnements nicht von denen anderer Benutzer unterscheiden.")
+                .value("/register")
+                .build());
+        argumentList.add(Argument.builder()
+                .name("Nutzname")
+                .description("Dein Nutzername")
+                .build());
+        argumentList.add(Argument.builder()
+                .name("Passwort")
+                .description("Dein Passwort")
+                .build());
     }
 }

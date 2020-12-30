@@ -7,4 +7,8 @@ public interface PricewatchTelegramBotCommand {
     boolean appliesTo(Message message);
 
     String execute(Message message);
+
+    String getHelpText();
+
+    String getDescription();
 }
