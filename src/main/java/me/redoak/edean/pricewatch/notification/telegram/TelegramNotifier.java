@@ -7,6 +7,7 @@ import me.redoak.edean.pricewatch.logic.update.Notifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -25,13 +26,14 @@ public class TelegramNotifier implements Notifier {
     public boolean inform(TrackedProduct trackedProduct, Subscriber subscriber) {
         var message = new SendMessage();
         message.setChatId(subscriber.getTelegramChatId());
-        String text = String.format(String.join("\n",
-                String.format("A product you follow has changed its price at %s.", trackedProduct.getUpdatedAt()),
+        String text = String.join("\n",
                 "See this, friend: ",
                 productDetails(trackedProduct),
-                "GL HF"));
+                "GL HF");
         message.setText(text);
+        message.setParseMode(ParseMode.HTML);
         try {
+            log.debug("Sending Telegram message: {}", message);
             pricewatchTelegramBot.execute(message);
             return true;
         } catch (TelegramApiException e) {
@@ -42,10 +44,9 @@ public class TelegramNotifier implements Notifier {
 
     private String productDetails(TrackedProduct trackedProduct) {
         return String.join("\n",
-                String.format("ID: %s", trackedProduct.getId()),
-                String.format("Name: %s", trackedProduct.getName()),
-                String.format("Price Change: %s->%s", trackedProduct.getOldPrice(), trackedProduct.getPrice()),
-                String.format("URL: %s",trackedProduct.getUrl())
+                String.format("<b>%s</b>", trackedProduct.getName()),
+                String.format("💸 %s € ➡️ %s €", trackedProduct.getOldPrice(), trackedProduct.getPrice()),
+                String.format("🌍<a href=\"%s\">Hier kriegst Du's!</a>",trackedProduct.getUrl())
         );
     }
 }
