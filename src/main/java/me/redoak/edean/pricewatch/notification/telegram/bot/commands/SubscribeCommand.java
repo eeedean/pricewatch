@@ -4,12 +4,14 @@ import me.redoak.edean.pricewatch.products.ProductRequest;
 import me.redoak.edean.pricewatch.products.TrackedProductService;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
 import me.redoak.edean.pricewatch.subscribers.SubscriberRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.List;
 import java.util.Optional;
 
+@ConditionalOnProperty(name = "me.redoak.edean.pricewatch.telegram.enabled", havingValue = "true")
 @Component
 public class SubscribeCommand extends AuthenticatedCommand {
 

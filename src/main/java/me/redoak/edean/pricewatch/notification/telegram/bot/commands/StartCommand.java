@@ -1,10 +1,12 @@
 package me.redoak.edean.pricewatch.notification.telegram.bot.commands;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.List;
 
+@ConditionalOnProperty(name = "me.redoak.edean.pricewatch.telegram.enabled", havingValue = "true")
 @Component
 public class StartCommand extends AbstractCommand {
 
