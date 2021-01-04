@@ -33,7 +33,7 @@ public class SubscriptionsCommand extends AuthenticatedCommand {
                 counter++;
                 String s = String.join("\n",
                         counter + ". " + getTitleString(p),
-                        getPriceString(p)) + "\n";
+                        getPriceString(p)) + "\n\n";
                 sb.append(s);
             }
         }
