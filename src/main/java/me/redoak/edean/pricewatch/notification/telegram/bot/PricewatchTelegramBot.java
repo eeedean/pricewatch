@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -42,6 +43,7 @@ public class PricewatchTelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             var message = new SendMessage(); // Create a SendMessage object with mandatory fields
             message.setChatId(String.valueOf(update.getMessage().getChatId()));
+            message.setParseMode(ParseMode.HTML);
             var input = update.getMessage();
             var optCmd = commands.stream().filter(command -> command.appliesTo(input)).findFirst();
             if (optCmd.isPresent()) {
