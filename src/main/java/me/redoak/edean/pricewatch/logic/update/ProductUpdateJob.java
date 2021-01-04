@@ -45,18 +45,27 @@ public class ProductUpdateJob extends QuartzJobBean {
                     log.debug("Updating products for {} with {}.", updater.getShop(), updater.toString());
                     repo.findAllByShopEagerSubscribers(updater.getShop()).parallelStream()
                             .filter(updater::update) // ProductUpdater.update delivers true, if there was a price difference
-                            .filter(product -> product.getPrice() == null ||
+                            .filter(product -> becameUnavailable(product) ||
+                                    wasUnavailable(product) ||
                                     (product.getOldPrice() != null && product.getPrice() != null &&
-                                    product.getPrice()
-                                            .divide(product.getOldPrice(), 2, RoundingMode.HALF_UP)
-                                            .subtract(BigDecimal.ONE)
-                                            .multiply(BigDecimal.valueOf(100))
-                                            .abs()
-                                            .compareTo(BigDecimal.valueOf(minPriceChangePercentage)) > 0 ))
+                                            product.getPrice()
+                                                    .divide(product.getOldPrice(), 2, RoundingMode.HALF_UP)
+                                                    .subtract(BigDecimal.ONE)
+                                                    .multiply(BigDecimal.valueOf(100))
+                                                    .abs()
+                                                    .compareTo(BigDecimal.valueOf(minPriceChangePercentage)) > 0))
                             .forEach(product ->
                                     product.getSubscribers().forEach(subscriber ->
                                             notifiers.forEach(n -> n.inform(product, subscriber))));
                 });
         log.info("Finished product updates.");
+    }
+
+    private boolean wasUnavailable(TrackedProduct product) {
+        return product.getOldPrice() == null && product.getPrice() != null;
+    }
+
+    private boolean becameUnavailable(TrackedProduct product) {
+        return product.getOldPrice() != null && product.getPrice() == null;
     }
 }
