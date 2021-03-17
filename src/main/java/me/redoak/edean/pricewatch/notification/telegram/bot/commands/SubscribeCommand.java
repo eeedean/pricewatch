@@ -1,15 +1,16 @@
 package me.redoak.edean.pricewatch.notification.telegram.bot.commands;
 
+import lombok.extern.slf4j.Slf4j;
 import me.redoak.edean.pricewatch.products.ProductRequest;
 import me.redoak.edean.pricewatch.products.TrackedProductService;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
 import me.redoak.edean.pricewatch.subscribers.SubscriberRepository;
+import org.quartz.SchedulerException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.List;
-import java.util.Optional;
 
 @ConditionalOnProperty(name = "me.redoak.edean.pricewatch.telegram.enabled", havingValue = "true")
 @Component
@@ -30,6 +31,12 @@ public class SubscribeCommand extends AuthenticatedCommand {
         productRequest.setUrl(argumentList.get(URL_INDEX).getValue());
 
         trackedProductService.subscribe(productRequest, subscriber);
+
+        try {
+            trackedProductService.triggerUpdate();
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
 
         return "Erledigt!";
     }
