@@ -1,6 +1,5 @@
 package me.redoak.edean.pricewatch.notification.telegram.bot.commands;
 
-import lombok.extern.slf4j.Slf4j;
 import me.redoak.edean.pricewatch.products.ProductRequest;
 import me.redoak.edean.pricewatch.products.TrackedProductService;
 import me.redoak.edean.pricewatch.subscribers.Subscriber;
