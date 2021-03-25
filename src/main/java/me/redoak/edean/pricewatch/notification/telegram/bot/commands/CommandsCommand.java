@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.List;
 
-@Slf4j
 @ConditionalOnProperty(name = "me.redoak.edean.pricewatch.telegram.enabled", havingValue = "true")
 @Component
 public class CommandsCommand extends AbstractCommand {
@@ -21,6 +20,8 @@ public class CommandsCommand extends AbstractCommand {
 
     @Override
     protected String execute(Message message, List<Argument> argumentList) {
+
+        //TODO refactor this method
 
         StringBuilder sb = new StringBuilder("Salut! Ich zeige dir eine Übersicht aller Befehle in Kurzform an.");
 
@@ -56,7 +57,6 @@ public class CommandsCommand extends AbstractCommand {
                 sb.append(((UnsubscribeCommand) c).getArgumentList().get(0).getName());
             }
         });
-        sb.append("\n\n");
         sb.append("/help");
         sb.append(" - ");
         sb.append("Hilfe anzeigen");
