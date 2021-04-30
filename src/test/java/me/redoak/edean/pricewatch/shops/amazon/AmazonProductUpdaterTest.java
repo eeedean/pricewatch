@@ -99,4 +99,19 @@ public class AmazonProductUpdaterTest {
         assertThat(product.getPrice(), equalTo(BigDecimal.valueOf(849, 2)));
         assertThat(product.getName(), equalTo("TestName1"));
     }
+
+    @Test
+    public void testDealPrice() {
+        Mockito.doReturn("<span id=\"priceblock_dealprice\" class=\"a-size-medium a-color-price priceBlockDealPriceString\">8,49&nbsp;€</span>")
+                .when(webClientMock).getContent(Mockito.any());
+
+        assertThat(updater.update(TrackedProduct.builder()
+                .price(BigDecimal.valueOf(1000, 2))
+                .name("TestName1")
+                .build()), equalTo(true));
+        TrackedProduct product = repo.findAll().get(0);
+        assertThat(product.getOldPrice(), equalTo(BigDecimal.valueOf(1000, 2)));
+        assertThat(product.getPrice(), equalTo(BigDecimal.valueOf(849, 2)));
+        assertThat(product.getName(), equalTo("TestName1"));
+    }
 }

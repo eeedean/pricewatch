@@ -107,6 +107,7 @@ public class AmazonProductUpdater implements ProductUpdater {
 
     private BigDecimal getPrice(Document doc) {
         Element element = doc.getElementById("priceblock_ourprice");
+        element = element != null ? element: doc.getElementById("priceblock_dealprice");
         if (element != null) {
             Matcher matcher = Pattern.compile("([0-9,.]+)").matcher(element.text());
             matcher.find();
