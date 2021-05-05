@@ -88,4 +88,8 @@ public abstract class AbstractCommand implements PricewatchTelegramBotCommand {
         private final String description;
         private String value;
     }
+
+    public List<Argument> getArgumentList(){
+        return this.argumentList;
+    }
 }

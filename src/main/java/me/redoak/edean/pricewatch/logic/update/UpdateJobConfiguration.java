@@ -19,7 +19,11 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class UpdateJobConfiguration {
 
-    @Value("${me.redoak.edean.pricewatch.update.schedule:0 0 * 1/1 * ? *}")
+    //origin:
+    //@Value("${me.redoak.edean.pricewatch.update.schedule:0 0 * 1/1 * ? *}")
+
+    //------set in the env variables-------
+    @Value("${me.redoak.edean.pricewatch.update.schedule}")
     private String cronSchedule;
 
     /**
